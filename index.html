@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Top 10 Achievers</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Segoe UI,sans-serif;
+  background:#001f3f;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+.box{
+  background:#fff;
+  max-width:480px;
+  width:100%;
+  border-radius:18px;
+  padding:20px;
+}
+h2{text-align:center;color:#001f3f}
+input,button{
+  width:100%;
+  padding:12px;
+  margin-bottom:10px;
+  border-radius:8px;
+  border:1px solid #ccc;
+  font-size:15px;
+}
+button{
+  background:#001f3f;
+  color:#fff;
+  border:none;
+  font-weight:bold;
+}
+.card{
+  border:1px solid #ddd;
+  padding:10px;
+  margin-bottom:10px;
+  border-radius:10px;
+}
+.hidden{display:none}
+</style>
+</head>
+
+<body>
+
+<div class="box" id="loginBox">
+  <h2>Admin Login</h2>
+  <input id="user" placeholder="Username">
+  <input id="pass" type="password" placeholder="Password">
+  <button onclick="login()">LOGIN</button>
+</div>
+
+<div class="box hidden" id="mainBox">
+  <h2>Top 10 Achievers</h2>
+
+  <input id="branch" placeholder="Branch Name">
+  <input id="date" type="date">
+
+  <div id="advisors"></div>
+
+  <button onclick="submitData()">GENERATE IMAGE</button>
+
+  <a id="download" class="hidden" download="Top10.png">
+    <button style="background:red">DOWNLOAD PNG</button>
+  </a>
+</div>
+
+<script>
+const APP_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxyqC_Y0g8Rh9-dT1PTed2e5Zofm-ohjd7sDQWPQG3lt2ZmUrS744LI3hZOnwOOi5p9/exec";
+
+function login(){
+  if(user.value==="AdminH" && pass.value==="Horana@26"){
+    loginBox.classList.add("hidden");
+    mainBox.classList.remove("hidden");
+  }else alert("Invalid Login");
+}
+
+const advDiv=document.getElementById("advisors");
+for(let i=1;i<=10;i++){
+  advDiv.innerHTML+=`
+  <div class="card">
+    <b>${i} Place</b>
+    <input id="n${i}" placeholder="Advisor Name">
+    <input id="a${i}" placeholder="ANBP">
+    <input id="p${i}" placeholder="NOP">
+    ${i<=3?`<input type="file" id="img${i}" accept="image/*">`:""}
+  </div>`;
+}
+
+function submitData(){
+  const fd=new FormData();
+  fd.append("branch",branch.value);
+  fd.append("date",date.value);
+  for(let i=1;i<=10;i++){
+    fd.append(`n${i}`,n${i}.value);
+    fd.append(`a${i}`,a${i}.value);
+    fd.append(`p${i}`,p${i}.value);
+    if(i<=3 && document.getElementById("img"+i).files[0]){
+      fd.append(`img${i}`,document.getElementById("img"+i).files[0]);
+    }
+  }
+
+  fetch(APP_SCRIPT_URL,{method:"POST",body:fd})
+  .then(r=>r.json())
+  .then(d=>{
+    download.href=d.url;
+    download.classList.remove("hidden");
+  });
+}
+</script>
+</body>
+</html>
