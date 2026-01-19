@@ -36,7 +36,6 @@ button{
   color:#fff;
   border:none;
   font-weight:bold;
-  cursor:pointer;
 }
 .card{
   border:1px solid #ddd;
@@ -47,16 +46,18 @@ button{
 .hidden{display:none}
 
 .loader{
-  width:28px;
-  height:28px;
-  border:4px solid #ddd;
+  border:4px solid #f3f3f3;
   border-top:4px solid #001f3f;
   border-radius:50%;
+  width:40px;
+  height:40px;
   animation:spin 1s linear infinite;
-  margin:10px auto;
+  margin:20px auto;
+  display:none;
 }
 @keyframes spin{
-  to{transform:rotate(360deg)}
+  0%{transform:rotate(0deg)}
+  100%{transform:rotate(360deg)}
 }
 </style>
 </head>
@@ -67,7 +68,7 @@ button{
   <h2>Admin Login</h2>
   <input id="user" placeholder="Username">
   <input id="pass" type="password" placeholder="Password">
-  <button onclick="login()">LOGIN</button>
+  <button id="loginBtn">LOGIN</button>
 </div>
 
 <div class="box hidden" id="mainBox">
@@ -78,8 +79,9 @@ button{
 
   <div id="advisors"></div>
 
-  <button onclick="submitData()">GENERATE IMAGE</button>
-  <div id="loading" class="loader hidden"></div>
+  <button id="genBtn">GENERATE IMAGE</button>
+
+  <div class="loader" id="loader"></div>
 
   <a id="download" class="hidden" download="Top10.png">
     <button style="background:red">DOWNLOAD PNG</button>
@@ -87,19 +89,18 @@ button{
 </div>
 
 <script>
-const APP_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxqyVl6u81F9oreoOo3Wgc1BJ4FPkdmCPyirAcZEZJGPxVm0E9j4t04SWTcvKKAdr0F/exec";
+const PROXY_URL = "https://cors-proxy-top10.thisara.workers.dev/";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbxiyZprA-dcc2XIqiTPAHRQQVSHcoe21bIoVwFnvvXvqcAsjoGKjRgc2D4vJckHGlKP/exec";
 
-const PROXY =
-"https://cors-proxy-top10.thisara.workers.dev/?url=";
-
-function login(){
+const loginBtn=document.getElementById("loginBtn");
+loginBtn.onclick=function(){
   if(user.value==="AdminH" && pass.value==="Horana@26"){
     loginBox.classList.add("hidden");
     mainBox.classList.remove("hidden");
   }else{
     alert("Invalid Login");
   }
-}
+};
 
 const advDiv=document.getElementById("advisors");
 for(let i=1;i<=10;i++){
@@ -109,44 +110,46 @@ for(let i=1;i<=10;i++){
     <input id="n${i}" placeholder="Advisor Name">
     <input id="a${i}" placeholder="ANBP">
     <input id="p${i}" placeholder="NOP">
-    ${i<=3?`<input type="file" id="img${i}" accept="image/*">`:""}
   </div>`;
 }
 
-function submitData(){
-  loading.classList.remove("hidden");
+document.getElementById("genBtn").onclick=submitData;
 
-  const fd=new FormData();
-  fd.append("branch",branch.value);
-  fd.append("date",date.value);
+function submitData(){
+
+  const payload={
+    branch:branch.value,
+    date:date.value
+  };
 
   for(let i=1;i<=10;i++){
-    fd.append(`n${i}`,document.getElementById(`n${i}`).value || "");
-    fd.append(`a${i}`,document.getElementById(`a${i}`).value || "");
-    fd.append(`p${i}`,document.getElementById(`p${i}`).value || "");
-
-    if(i<=3){
-      const file=document.getElementById(`img${i}`).files[0];
-      if(file) fd.append(`img${i}`,file);
-    }
+    payload["n"+i]=document.getElementById("n"+i).value || "";
+    payload["a"+i]=document.getElementById("a"+i).value || "";
+    payload["p"+i]=document.getElementById("p"+i).value || "";
   }
 
-  fetch(PROXY + encodeURIComponent(APP_SCRIPT_URL),{
+  loader.style.display="block";
+
+  fetch(PROXY_URL,{
     method:"POST",
-    body:fd
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      url:GAS_URL,
+      payload:payload
+    })
   })
   .then(r=>r.json())
   .then(d=>{
-    loading.classList.add("hidden");
+    loader.style.display="none";
     download.href=d.url;
     download.classList.remove("hidden");
   })
   .catch(e=>{
-    loading.classList.add("hidden");
+    loader.style.display="none";
     alert("Error generating image");
-    console.error(e);
   });
 }
 </script>
+
 </body>
 </html>
