@@ -45,7 +45,7 @@ button{
 }
 .hidden{display:none}
 
-/* 🔄 Loader */
+/* Loader */
 .loader{
   border:4px solid #f3f3f3;
   border-top:4px solid #001f3f;
@@ -97,9 +97,11 @@ function login(){
   const u=document.getElementById("user").value;
   const p=document.getElementById("pass").value;
   if(u==="AdminH" && p==="Horana@26"){
-    loginBox.classList.add("hidden");
-    mainBox.classList.remove("hidden");
-  }else alert("Invalid Login");
+    document.getElementById("loginBox").classList.add("hidden");
+    document.getElementById("mainBox").classList.remove("hidden");
+  }else{
+    alert("Invalid Login");
+  }
 }
 
 /* Advisor Blocks */
@@ -124,8 +126,8 @@ function submitData(){
   loader.classList.remove("hidden");
 
   const fd=new FormData();
-  fd.append("branch",branch.value || "");
-  fd.append("date",date.value || "");
+  fd.append("branch",document.getElementById("branch").value || "");
+  fd.append("date",document.getElementById("date").value || "");
 
   for(let i=1;i<=10;i++){
     fd.append(`n${i}`,document.getElementById(`n${i}`).value || "");
@@ -141,20 +143,19 @@ function submitData(){
   }
 
   fetch(APP_SCRIPT_URL,{method:"POST",body:fd})
-  .then(r=>r.json())
-  .then(d=>{
-    loader.classList.add("hidden");
-    btn.disabled=false;
-
-    const dl=document.getElementById("download");
-    dl.href=d.url;
-    dl.classList.remove("hidden");
-  })
-  .catch(()=>{
-    loader.classList.add("hidden");
-    btn.disabled=false;
-    alert("Image generation failed");
-  });
+    .then(r=>r.json())
+    .then(d=>{
+      loader.classList.add("hidden");
+      btn.disabled=false;
+      const dl=document.getElementById("download");
+      dl.href=d.url;
+      dl.classList.remove("hidden");
+    })
+    .catch(()=>{
+      loader.classList.add("hidden");
+      btn.disabled=false;
+      alert("Image generation failed");
+    });
 }
 </script>
 
