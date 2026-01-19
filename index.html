@@ -74,45 +74,57 @@ button{
 <script>
 const APP_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxyqC_Y0g8Rh9-dT1PTed2e5Zofm-ohjd7sDQWPQG3lt2ZmUrS744LI3hZOnwOOi5p9/exec";
 
+/* ✅ FIXED LOGIN */
 function login(){
-  if(user.value==="AdminH" && pass.value==="Horana@26"){
-    loginBox.classList.add("hidden");
-    mainBox.classList.remove("hidden");
-  }else alert("Invalid Login");
+  const u = document.getElementById("user").value;
+  const p = document.getElementById("pass").value;
+
+  if(u === "AdminH" && p === "Horana@26"){
+    document.getElementById("loginBox").classList.add("hidden");
+    document.getElementById("mainBox").classList.remove("hidden");
+  } else {
+    alert("Invalid Login");
+  }
 }
 
-const advDiv=document.getElementById("advisors");
+/* Advisors UI */
+const advDiv = document.getElementById("advisors");
 for(let i=1;i<=10;i++){
-  advDiv.innerHTML+=`
+  advDiv.innerHTML += `
   <div class="card">
     <b>${i} Place</b>
     <input id="n${i}" placeholder="Advisor Name">
     <input id="a${i}" placeholder="ANBP">
     <input id="p${i}" placeholder="NOP">
-    ${i<=3?`<input type="file" id="img${i}" accept="image/*">`:""}
+    ${i<=3 ? `<input type="file" id="img${i}" accept="image/*">` : ""}
   </div>`;
 }
 
+/* Submit */
 function submitData(){
-  const fd=new FormData();
-  fd.append("branch",branch.value);
-  fd.append("date",date.value);
+  const fd = new FormData();
+  fd.append("branch", document.getElementById("branch").value);
+  fd.append("date", document.getElementById("date").value);
+
   for(let i=1;i<=10;i++){
-    fd.append(`n${i}`,n${i}.value);
-    fd.append(`a${i}`,a${i}.value);
-    fd.append(`p${i}`,p${i}.value);
-    if(i<=3 && document.getElementById("img"+i).files[0]){
-      fd.append(`img${i}`,document.getElementById("img"+i).files[0]);
+    fd.append(`n${i}`, document.getElementById(`n${i}`).value);
+    fd.append(`a${i}`, document.getElementById(`a${i}`).value);
+    fd.append(`p${i}`, document.getElementById(`p${i}`).value);
+    if(i<=3){
+      const img = document.getElementById(`img${i}`);
+      if(img.files[0]) fd.append(`img${i}`, img.files[0]);
     }
   }
 
   fetch(APP_SCRIPT_URL,{method:"POST",body:fd})
-  .then(r=>r.json())
-  .then(d=>{
-    download.href=d.url;
-    download.classList.remove("hidden");
-  });
+    .then(r=>r.json())
+    .then(d=>{
+      const dl = document.getElementById("download");
+      dl.href = d.url;
+      dl.classList.remove("hidden");
+    });
 }
 </script>
+
 </body>
 </html>
